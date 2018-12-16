@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"mime/multipart"
-	"net/url"
 	"reflect"
 	"strconv"
 	"strings"
@@ -25,16 +24,24 @@ func AddCustomRule(name string, fn func(field string, rule string, message strin
 }
 
 // validateCustomRules validate custom rules
-func validateCustomRules(field string, rule string, message string, value interface{}, errsBag url.Values) {
+func validateCustomRules(field string, rule string, message string, value interface{}, errsBag MapData) {
 	for k, v := range rulesFuncMap {
 		if k == rule || strings.HasPrefix(rule, k+":") {
 			err := v(field, rule, message, value)
 			if err != nil {
-				errsBag.Add(field, err.Error())
+				errsBag.add(field, err.Error())
 			}
 			break
 		}
 	}
+}
+
+func (v MapData) add(key, value string) {
+	v[key] = append(v[key], value)
+}
+
+func (v MapData) Get(key string) []string {
+	return v[key]
 }
 
 func init() {

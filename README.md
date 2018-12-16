@@ -1,11 +1,11 @@
 Package govalidator
 =========================
-[![Build Status](https://travis-ci.org/thedevsaddam/govalidator.svg?branch=master)](https://travis-ci.org/thedevsaddam/govalidator)
-[![Project status](https://img.shields.io/badge/version-1.9-green.svg)](https://github.com/thedevsaddam/govalidator/releases)
-[![Go Report Card](https://goreportcard.com/badge/github.com/thedevsaddam/govalidator)](https://goreportcard.com/report/github.com/thedevsaddam/govalidator)
-[![Coverage Status](https://coveralls.io/repos/github/thedevsaddam/govalidator/badge.svg?branch=master)](https://coveralls.io/github/thedevsaddam/govalidator?branch=master)
-[![GoDoc](https://godoc.org/github.com/thedevsaddam/govalidator?status.svg)](https://godoc.org/github.com/thedevsaddam/govalidator)
-[![License](https://img.shields.io/dub/l/vibe-d.svg)](https://github.com/thedevsaddam/govalidator/blob/dev/LICENSE.md)
+[![Build Status](https://travis-ci.org/krantideep95/govalidator.svg?branch=master)](https://travis-ci.org/krantideep95/govalidator)
+[![Project status](https://img.shields.io/badge/version-1.9-green.svg)](https://github.com/krantideep95/govalidator/releases)
+[![Go Report Card](https://goreportcard.com/badge/github.com/krantideep95/govalidator)](https://goreportcard.com/report/github.com/krantideep95/govalidator)
+[![Coverage Status](https://coveralls.io/repos/github/krantideep95/govalidator/badge.svg?branch=master)](https://coveralls.io/github/krantideep95/govalidator?branch=master)
+[![GoDoc](https://godoc.org/github.com/krantideep95/govalidator?status.svg)](https://godoc.org/github.com/krantideep95/govalidator)
+[![License](https://img.shields.io/dub/l/vibe-d.svg)](https://github.com/krantideep95/govalidator/blob/dev/LICENSE.md)
 
 Validate golang request data with simple rules. Highly inspired by Laravel's request validation.
 
@@ -14,7 +14,7 @@ Validate golang request data with simple rules. Highly inspired by Laravel's req
 
 Install the package using
 ```go
-$ go get github.com/thedevsaddam/govalidator
+$ go get github.com/krantideep95/govalidator
 // or
 $ go get gopkg.in/thedevsaddam/govalidator.v1
 ```
@@ -23,7 +23,7 @@ $ go get gopkg.in/thedevsaddam/govalidator.v1
 
 To use the package import it in your `*.go` code
 ```go
-import "github.com/thedevsaddam/govalidator"
+import "github.com/krantideep95/govalidator"
 // or
 import "gopkg.in/thedevsaddam/govalidator.v1"
 ```
