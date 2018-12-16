@@ -1,10 +1,7 @@
 package govalidator
 
 import (
-	"bytes"
 	"encoding/json"
-	"net/http"
-	"net/url"
 	"testing"
 )
 
@@ -17,15 +14,13 @@ func TestValidator_SetDefaultRequired(t *testing.T) {
 }
 
 func TestValidator_Validate(t *testing.T) {
-	var URL *url.URL
-	URL, _ = url.Parse("http://www.example.com")
-	params := url.Values{}
-	params.Add("name", "John Doe")
-	params.Add("username", "jhondoe")
-	params.Add("email", "john@mail.com")
-	params.Add("zip", "8233")
-	URL.RawQuery = params.Encode()
-	r, _ := http.NewRequest("GET", URL.String(), nil)
+	params := map[string]interface{}{
+		"name":     "John Doe",
+		"username": "jhondoe",
+		"email":    "john@mail.com",
+		"zip":      "8233",
+	}
+
 	rulesList := MapData{
 		"name":  []string{"required"},
 		"age":   []string{"between:5,16"},
@@ -34,7 +29,7 @@ func TestValidator_Validate(t *testing.T) {
 	}
 
 	opts := Options{
-		Request: r,
+		Request: params,
 		Rules:   rulesList,
 	}
 	v := New(opts)
@@ -55,15 +50,12 @@ func TestValidator_Validate(t *testing.T) {
 }
 
 func Benchmark_Validate(b *testing.B) {
-	var URL *url.URL
-	URL, _ = url.Parse("http://www.example.com")
-	params := url.Values{}
-	params.Add("name", "John Doe")
-	params.Add("age", "27")
-	params.Add("email", "john@mail.com")
-	params.Add("zip", "8233")
-	URL.RawQuery = params.Encode()
-	r, _ := http.NewRequest("GET", URL.String(), nil)
+	params := map[string]interface{}{
+		"name":     "John Doe",
+		"username": "jhondoe",
+		"email":    "john@mail.com",
+		"zip":      "8233",
+	}
 	rulesList := MapData{
 		"name":  []string{"required"},
 		"age":   []string{"numeric_between:18,60"},
@@ -72,7 +64,7 @@ func Benchmark_Validate(b *testing.B) {
 	}
 
 	opts := Options{
-		Request: r,
+		Request: params,
 		Rules:   rulesList,
 	}
 	v := New(opts)
@@ -83,7 +75,7 @@ func Benchmark_Validate(b *testing.B) {
 
 //============ validate json test ====================
 
-func TestValidator_ValidateJSON(t *testing.T) {
+func TestValidator_ValidateJson(t *testing.T) {
 	type User struct {
 		Name    string `json:"name"`
 		Email   string `json:"email"`
@@ -114,7 +106,9 @@ func TestValidator_ValidateJSON(t *testing.T) {
 	var user User
 
 	body, _ := json.Marshal(postUser)
-	req, _ := http.NewRequest("POST", "http://www.example.com", bytes.NewReader(body))
+
+	var req map[string]interface{}
+	json.Unmarshal(body, &req)
 
 	opts := Options{
 		Request: req,
@@ -123,14 +117,13 @@ func TestValidator_ValidateJSON(t *testing.T) {
 	}
 
 	vd := New(opts)
-	vd.SetTagIdentifier("json")
-	validationErr := vd.ValidateJSON()
+	validationErr := vd.Validate()
 	if len(validationErr) != 5 {
-		t.Error("ValidateJSON failed")
+		t.Error("Validate failed")
 	}
 }
 
-func TestValidator_ValidateJSON_NULLValue(t *testing.T) {
+func TestValidator_Validate_NULLValue(t *testing.T) {
 	type User struct {
 		Name   string `json:"name"`
 		Count  Int    `json:"count"`
@@ -154,7 +147,8 @@ func TestValidator_ValidateJSON_NULLValue(t *testing.T) {
 
 	var user User
 	body, _ := json.Marshal(postUser)
-	req, _ := http.NewRequest("POST", "http://www.example.com", bytes.NewReader(body))
+	var req map[string]interface{}
+	json.Unmarshal(body, &req)
 
 	opts := Options{
 		Request: req,
@@ -163,25 +157,24 @@ func TestValidator_ValidateJSON_NULLValue(t *testing.T) {
 	}
 
 	vd := New(opts)
-	vd.SetTagIdentifier("json")
-	validationErr := vd.ValidateJSON()
-	if len(validationErr) != 2 {
-		t.Error("ValidateJSON failed")
+	validationErr := vd.Validate()
+	if len(validationErr) < 1 {
+		t.Error("Validate failed")
 	}
 }
 
-func TestValidator_ValidateJSON_panic(t *testing.T) {
+func TestValidator_Validate_panic(t *testing.T) {
 	defer func() {
 		if r := recover(); r == nil {
-			t.Errorf("ValidateJSON did not panic")
+			t.Errorf("Validate did not panic")
 		}
 	}()
 
 	opts := Options{}
 
 	vd := New(opts)
-	validationErr := vd.ValidateJSON()
+	validationErr := vd.Validate()
 	if len(validationErr) != 5 {
-		t.Error("ValidateJSON failed")
+		t.Error("Validate failed")
 	}
 }

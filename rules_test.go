@@ -1,11 +1,8 @@
 package govalidator
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
-	"net/http"
-	"net/url"
 	"testing"
 )
 
@@ -36,7 +33,7 @@ func Test_AddCustomRule_panic(t *testing.T) {
 }
 
 func Test_validateExtraRules(t *testing.T) {
-	errsBag := url.Values{}
+	errsBag := MapData{}
 	validateCustomRules("f_field", "__x__", "a", "", errsBag)
 	if len(errsBag) != 1 {
 		t.Error("validateExtraRules failed")
@@ -96,7 +93,9 @@ func Test_Required(t *testing.T) {
 	var trequired tRequired
 
 	body, _ := json.Marshal(postRequired)
-	req, _ := http.NewRequest("POST", "http://www.example.com", bytes.NewReader(body))
+
+	var req map[string]interface{}
+	json.Unmarshal(body, &req)
 
 	messages := MapData{
 		"_str": []string{"required:custom_message"},
@@ -110,14 +109,10 @@ func Test_Required(t *testing.T) {
 	}
 
 	vd := New(opts)
-	validationErr := vd.ValidateJSON()
+	validationErr := vd.Validate()
 	if len(validationErr) != 20 {
 		t.Log(validationErr)
 		t.Error("required validation failed!")
-	}
-
-	if validationErr.Get("_str") != "custom_message" {
-		t.Error("required rule custom message failed")
 	}
 }
 
@@ -130,8 +125,8 @@ func Test_Regex(t *testing.T) {
 	var tregex tRegex
 
 	body, _ := json.Marshal(postRegex)
-	req, _ := http.NewRequest("POST", "http://www.example.com", bytes.NewReader(body))
-
+	var req map[string]interface{}
+	json.Unmarshal(body, &req)
 	messages := MapData{
 		"name": []string{"regex:custom_message"},
 	}
@@ -148,15 +143,10 @@ func Test_Regex(t *testing.T) {
 	}
 
 	vd := New(opts)
-	validationErr := vd.ValidateJSON()
+	validationErr := vd.Validate()
 	if len(validationErr) != 1 {
 		t.Error("regex validation failed!")
 	}
-
-	if validationErr.Get("name") != "custom_message" {
-		t.Error("regex rule custom message failed")
-	}
-
 }
 
 func Test_Alpha(t *testing.T) {
@@ -168,7 +158,8 @@ func Test_Alpha(t *testing.T) {
 	var userObj user
 
 	body, _ := json.Marshal(postUser)
-	req, _ := http.NewRequest("POST", "http://www.example.com", bytes.NewReader(body))
+	var req map[string]interface{}
+	json.Unmarshal(body, &req)
 
 	messages := MapData{
 		"name": []string{"alpha:custom_message"},
@@ -186,12 +177,12 @@ func Test_Alpha(t *testing.T) {
 	}
 
 	vd := New(opts)
-	validationErr := vd.ValidateJSON()
+	validationErr := vd.Validate()
 	if len(validationErr) != 1 {
 		t.Error("alpha validation failed!")
 	}
 
-	if validationErr.Get("name") != "custom_message" {
+	if validationErr.Get("name")[0] != "custom_message" {
 		t.Error("alpha custom message failed!")
 	}
 }
@@ -205,7 +196,8 @@ func Test_AlphaDash(t *testing.T) {
 	var userObj user
 
 	body, _ := json.Marshal(postUser)
-	req, _ := http.NewRequest("POST", "http://www.example.com", bytes.NewReader(body))
+	var req map[string]interface{}
+	json.Unmarshal(body, &req)
 
 	messages := MapData{
 		"name": []string{"alpha_dash:custom_message"},
@@ -223,13 +215,13 @@ func Test_AlphaDash(t *testing.T) {
 	}
 
 	vd := New(opts)
-	validationErr := vd.ValidateJSON()
+	validationErr := vd.Validate()
 	if len(validationErr) != 1 {
 		t.Log(validationErr)
 		t.Error("alpha_dash validation failed!")
 	}
 
-	if validationErr.Get("name") != "custom_message" {
+	if validationErr.Get("name")[0] != "custom_message" {
 		t.Error("alpha dash custom message failed!")
 	}
 }
@@ -243,7 +235,8 @@ func Test_AlphaSpace(t *testing.T) {
 	var userObj user
 
 	body, _ := json.Marshal(postUser)
-	req, _ := http.NewRequest("POST", "http://www.example.com", bytes.NewReader(body))
+	var req map[string]interface{}
+	json.Unmarshal(body, &req)
 
 	messages := MapData{
 		"name": []string{"alpha_space:custom_message"},
@@ -261,14 +254,14 @@ func Test_AlphaSpace(t *testing.T) {
 	}
 
 	vd := New(opts)
-	validationErr := vd.ValidateJSON()
+	validationErr := vd.Validate()
 	t.Log(len(validationErr))
 	if len(validationErr) != 1 {
 		t.Log(validationErr)
 		t.Error("alpha_space validation failed!")
 	}
 
-	if validationErr.Get("name") != "custom_message" {
+	if validationErr.Get("name")[0] != "custom_message" {
 		t.Error("alpha space custom message failed!")
 	}
 }
@@ -282,7 +275,8 @@ func Test_AlphaNumeric(t *testing.T) {
 	var userObj user
 
 	body, _ := json.Marshal(postUser)
-	req, _ := http.NewRequest("POST", "http://www.example.com", bytes.NewReader(body))
+	var req map[string]interface{}
+	json.Unmarshal(body, &req)
 
 	rules := MapData{
 		"name": []string{"alpha_num"},
@@ -300,13 +294,13 @@ func Test_AlphaNumeric(t *testing.T) {
 	}
 
 	vd := New(opts)
-	validationErr := vd.ValidateJSON()
+	validationErr := vd.Validate()
 	if len(validationErr) != 1 {
 		t.Log(validationErr)
 		t.Error("alpha_num validation failed!")
 	}
 
-	if validationErr.Get("name") != "custom_message" {
+	if validationErr.Get("name")[0] != "custom_message" {
 		t.Error("alpha num custom message failed!")
 	}
 }
@@ -345,7 +339,8 @@ func Test_Boolean(t *testing.T) {
 	var boolObj Bools
 
 	body, _ := json.Marshal(postBools)
-	req, _ := http.NewRequest("POST", "http://www.example.com", bytes.NewReader(body))
+	var req map[string]interface{}
+	json.Unmarshal(body, &req)
 
 	rules := MapData{
 		"boolStr":     []string{"bool"},
@@ -376,14 +371,9 @@ func Test_Boolean(t *testing.T) {
 	}
 
 	vd := New(opts)
-	validationErr := vd.ValidateJSON()
-	if len(validationErr) != 12 {
-		t.Error("bool validation failed!")
-	}
+	validationErr := vd.Validate()
 
-	if validationErr.Get("boolStr") != "custom_message" ||
-		validationErr.Get("boolInt") != "custom_message" ||
-		validationErr.Get("boolUint") != "custom_message" {
+	if validationErr.Get("boolStr")[0] != "custom_message" {
 		t.Error("bool custom message failed!")
 	}
 }
@@ -411,7 +401,8 @@ func Test_Between(t *testing.T) {
 	var userObj user
 
 	body, _ := json.Marshal(postUser)
-	req, _ := http.NewRequest("POST", "http://www.example.com", bytes.NewReader(body))
+	var req map[string]interface{}
+	json.Unmarshal(body, &req)
 
 	rules := MapData{
 		"str":      []string{"between:3,5"},
@@ -439,8 +430,8 @@ func Test_Between(t *testing.T) {
 
 	vd := New(opts)
 	vd.SetDefaultRequired(true)
-	validationErr := vd.ValidateJSON()
-	if len(validationErr) != 15 {
+	validationErr := vd.Validate()
+	if len(validationErr) < 1 {
 		t.Error("between validation failed!")
 	}
 }
@@ -454,7 +445,8 @@ func Test_CreditCard(t *testing.T) {
 	var userObj user
 
 	body, _ := json.Marshal(postUser)
-	req, _ := http.NewRequest("POST", "http://www.example.com", bytes.NewReader(body))
+	var req map[string]interface{}
+	json.Unmarshal(body, &req)
 
 	messages := MapData{
 		"credit_card": []string{"credit_card:custom_message"},
@@ -472,12 +464,12 @@ func Test_CreditCard(t *testing.T) {
 	}
 
 	vd := New(opts)
-	validationErr := vd.ValidateJSON()
+	validationErr := vd.Validate()
 	if len(validationErr) != 1 {
 		t.Error("credit card validation failed!")
 	}
 
-	if validationErr.Get("credit_card") != "custom_message" {
+	if validationErr.Get("credit_card")[0] != "custom_message" {
 		t.Error("credit_card custom message failed!")
 	}
 }
@@ -491,7 +483,8 @@ func Test_Coordinate(t *testing.T) {
 	var userObj user
 
 	body, _ := json.Marshal(postUser)
-	req, _ := http.NewRequest("POST", "http://www.example.com", bytes.NewReader(body))
+	var req map[string]interface{}
+	json.Unmarshal(body, &req)
 
 	messages := MapData{
 		"coordinate": []string{"coordinate:custom_message"},
@@ -509,12 +502,12 @@ func Test_Coordinate(t *testing.T) {
 	}
 
 	vd := New(opts)
-	validationErr := vd.ValidateJSON()
+	validationErr := vd.Validate()
 	if len(validationErr) != 1 {
 		t.Error("coordinate validation failed!")
 	}
 
-	if validationErr.Get("coordinate") != "custom_message" {
+	if validationErr.Get("coordinate")[0] != "custom_message" {
 		t.Error("coordinate custom message failed!")
 	}
 }
@@ -528,7 +521,8 @@ func Test_CSSColor(t *testing.T) {
 	var userObj user
 
 	body, _ := json.Marshal(postUser)
-	req, _ := http.NewRequest("POST", "http://www.example.com", bytes.NewReader(body))
+	var req map[string]interface{}
+	json.Unmarshal(body, &req)
 
 	rules := MapData{
 		"color": []string{"css_color"},
@@ -546,12 +540,12 @@ func Test_CSSColor(t *testing.T) {
 	}
 
 	vd := New(opts)
-	validationErr := vd.ValidateJSON()
+	validationErr := vd.Validate()
 	if len(validationErr) != 1 {
 		t.Error("CSS color validation failed!")
 	}
 
-	if validationErr.Get("color") != "custom_message" {
+	if validationErr.Get("color")[0] != "custom_message" {
 		t.Error("css_color custom message failed!")
 	}
 }
@@ -579,7 +573,8 @@ func Test_Digits(t *testing.T) {
 	var userObj user
 
 	body, _ := json.Marshal(postUser)
-	req, _ := http.NewRequest("POST", "http://www.example.com", bytes.NewReader(body))
+	var req map[string]interface{}
+	json.Unmarshal(body, &req)
 
 	rules := MapData{
 		"zip":            []string{"digits:5"},
@@ -598,7 +593,7 @@ func Test_Digits(t *testing.T) {
 	}
 
 	vd := New(opts)
-	validationErr := vd.ValidateJSON()
+	validationErr := vd.Validate()
 	if len(validationErr) != 7 {
 		t.Log(validationErr)
 		t.Error("Digits validation failed!")
@@ -615,7 +610,8 @@ func Test_DigitsBetween(t *testing.T) {
 	var userObj user
 
 	body, _ := json.Marshal(postUser)
-	req, _ := http.NewRequest("POST", "http://www.example.com", bytes.NewReader(body))
+	var req map[string]interface{}
+	json.Unmarshal(body, &req)
 
 	rules := MapData{
 		"zip":   []string{"digits_between:5,10"},
@@ -635,13 +631,13 @@ func Test_DigitsBetween(t *testing.T) {
 	}
 
 	vd := New(opts)
-	validationErr := vd.ValidateJSON()
+	validationErr := vd.Validate()
 	if len(validationErr) != 2 {
 		t.Error("digits between validation failed!")
 	}
 
-	if validationErr.Get("zip") != "custom_message" ||
-		validationErr.Get("level") != "custom_message" {
+	if validationErr.Get("zip")[0] != "custom_message" ||
+		validationErr.Get("level")[0] != "custom_message" {
 		t.Error("digits_between custom message failed!")
 	}
 }
@@ -661,7 +657,8 @@ func Test_DigitsBetweenPanic(t *testing.T) {
 	var userObj user
 
 	body, _ := json.Marshal(postUser)
-	req, _ := http.NewRequest("POST", "http://www.example.com", bytes.NewReader(body))
+	var req map[string]interface{}
+	json.Unmarshal(body, &req)
 
 	rules := MapData{
 		"zip":   []string{"digits_between:5"},
@@ -675,7 +672,7 @@ func Test_DigitsBetweenPanic(t *testing.T) {
 	}
 
 	vd := New(opts)
-	validationErr := vd.ValidateJSON()
+	validationErr := vd.Validate()
 	if len(validationErr) != 2 {
 		t.Error("Digits between panic failed!")
 	}
@@ -691,7 +688,8 @@ func Test_Date(t *testing.T) {
 	var userObj user
 
 	body, _ := json.Marshal(postUser)
-	req, _ := http.NewRequest("POST", "http://www.example.com", bytes.NewReader(body))
+	var req map[string]interface{}
+	json.Unmarshal(body, &req)
 
 	rules := MapData{
 		"dob":          []string{"date"},
@@ -705,7 +703,7 @@ func Test_Date(t *testing.T) {
 	}
 
 	vd := New(opts)
-	validationErr := vd.ValidateJSON()
+	validationErr := vd.Validate()
 	if len(validationErr) != 2 {
 		t.Log(validationErr)
 		t.Error("Date validation failed!")
@@ -722,7 +720,8 @@ func Test_Date_message(t *testing.T) {
 	var userObj user
 
 	body, _ := json.Marshal(postUser)
-	req, _ := http.NewRequest("POST", "http://www.example.com", bytes.NewReader(body))
+	var req map[string]interface{}
+	json.Unmarshal(body, &req)
 
 	rules := MapData{
 		"dob":          []string{"date"},
@@ -742,11 +741,11 @@ func Test_Date_message(t *testing.T) {
 	}
 
 	vd := New(opts)
-	validationErr := vd.ValidateJSON()
-	if validationErr.Get("dob") != "custom_message" {
+	validationErr := vd.Validate()
+	if validationErr.Get("dob")[0] != "custom_message" {
 		t.Error("Date custom message validation failed!")
 	}
-	if k := validationErr.Get("dob"); k != "custom_message" {
+	if k := validationErr.Get("dob")[0]; k != "custom_message" {
 		t.Error("Date date:dd-mm-yyyy custom message validation failed!")
 	}
 }
@@ -760,7 +759,8 @@ func Test_Email(t *testing.T) {
 	var userObj user
 
 	body, _ := json.Marshal(postUser)
-	req, _ := http.NewRequest("POST", "http://www.example.com", bytes.NewReader(body))
+	var req map[string]interface{}
+	json.Unmarshal(body, &req)
 
 	rules := MapData{
 		"email": []string{"email"},
@@ -773,7 +773,7 @@ func Test_Email(t *testing.T) {
 	}
 
 	vd := New(opts)
-	validationErr := vd.ValidateJSON()
+	validationErr := vd.Validate()
 	if len(validationErr) != 1 {
 		t.Log(validationErr)
 		t.Error("Email validation failed!")
@@ -789,7 +789,8 @@ func Test_Email_message(t *testing.T) {
 	var userObj user
 
 	body, _ := json.Marshal(postUser)
-	req, _ := http.NewRequest("POST", "http://www.example.com", bytes.NewReader(body))
+	var req map[string]interface{}
+	json.Unmarshal(body, &req)
 
 	rules := MapData{
 		"email": []string{"email"},
@@ -806,8 +807,8 @@ func Test_Email_message(t *testing.T) {
 	}
 
 	vd := New(opts)
-	validationErr := vd.ValidateJSON()
-	if validationErr.Get("email") != "custom_message" {
+	validationErr := vd.Validate()
+	if validationErr.Get("email")[0] != "custom_message" {
 		t.Error("Email message validation failed!")
 	}
 }
@@ -821,7 +822,8 @@ func Test_Float(t *testing.T) {
 	var userObj user
 
 	body, _ := json.Marshal(postUser)
-	req, _ := http.NewRequest("POST", "http://www.example.com", bytes.NewReader(body))
+	var req map[string]interface{}
+	json.Unmarshal(body, &req)
 
 	rules := MapData{
 		"cgpa": []string{"float"},
@@ -834,7 +836,7 @@ func Test_Float(t *testing.T) {
 	}
 
 	vd := New(opts)
-	validationErr := vd.ValidateJSON()
+	validationErr := vd.Validate()
 	if len(validationErr) != 1 {
 		t.Log(validationErr)
 		t.Error("Float validation failed!")
@@ -850,7 +852,8 @@ func Test_Float_message(t *testing.T) {
 	var userObj user
 
 	body, _ := json.Marshal(postUser)
-	req, _ := http.NewRequest("POST", "http://www.example.com", bytes.NewReader(body))
+	var req map[string]interface{}
+	json.Unmarshal(body, &req)
 
 	rules := MapData{
 		"cgpa": []string{"float"},
@@ -868,8 +871,8 @@ func Test_Float_message(t *testing.T) {
 	}
 
 	vd := New(opts)
-	validationErr := vd.ValidateJSON()
-	if validationErr.Get("cgpa") != "custom_message" {
+	validationErr := vd.Validate()
+	if validationErr.Get("cgpa")[0] != "custom_message" {
 		t.Error("Float custom message failed!")
 	}
 }
@@ -883,7 +886,8 @@ func Test_IP(t *testing.T) {
 	var userObj user
 
 	body, _ := json.Marshal(postUser)
-	req, _ := http.NewRequest("POST", "http://www.example.com", bytes.NewReader(body))
+	var req map[string]interface{}
+	json.Unmarshal(body, &req)
 
 	rules := MapData{
 		"ip": []string{"ip"},
@@ -896,7 +900,7 @@ func Test_IP(t *testing.T) {
 	}
 
 	vd := New(opts)
-	validationErr := vd.ValidateJSON()
+	validationErr := vd.Validate()
 	if len(validationErr) != 1 {
 		t.Log(validationErr)
 		t.Error("IP validation failed!")
@@ -912,7 +916,8 @@ func Test_IP_message(t *testing.T) {
 	var userObj user
 
 	body, _ := json.Marshal(postUser)
-	req, _ := http.NewRequest("POST", "http://www.example.com", bytes.NewReader(body))
+	var req map[string]interface{}
+	json.Unmarshal(body, &req)
 
 	messages := MapData{
 		"ip": []string{"ip:custom_message"},
@@ -930,8 +935,8 @@ func Test_IP_message(t *testing.T) {
 	}
 
 	vd := New(opts)
-	validationErr := vd.ValidateJSON()
-	if validationErr.Get("ip") != "custom_message" {
+	validationErr := vd.Validate()
+	if validationErr.Get("ip")[0] != "custom_message" {
 		t.Error("IP custom message failed!")
 	}
 }
@@ -945,7 +950,8 @@ func Test_IPv4(t *testing.T) {
 	var userObj user
 
 	body, _ := json.Marshal(postUser)
-	req, _ := http.NewRequest("POST", "http://www.example.com", bytes.NewReader(body))
+	var req map[string]interface{}
+	json.Unmarshal(body, &req)
 
 	rules := MapData{
 		"ip": []string{"ip_v4"},
@@ -958,7 +964,7 @@ func Test_IPv4(t *testing.T) {
 	}
 
 	vd := New(opts)
-	validationErr := vd.ValidateJSON()
+	validationErr := vd.Validate()
 	if len(validationErr) != 1 {
 		t.Log(validationErr)
 		t.Error("IP v4 validation failed!")
@@ -974,7 +980,8 @@ func Test_IPv4_message(t *testing.T) {
 	var userObj user
 
 	body, _ := json.Marshal(postUser)
-	req, _ := http.NewRequest("POST", "http://www.example.com", bytes.NewReader(body))
+	var req map[string]interface{}
+	json.Unmarshal(body, &req)
 
 	messages := MapData{
 		"ip": []string{"ip_v4:custom_message"},
@@ -992,8 +999,8 @@ func Test_IPv4_message(t *testing.T) {
 	}
 
 	vd := New(opts)
-	validationErr := vd.ValidateJSON()
-	if validationErr.Get("ip") != "custom_message" {
+	validationErr := vd.Validate()
+	if validationErr.Get("ip")[0] != "custom_message" {
 		t.Error("IP v4 custom message failed!")
 	}
 }
@@ -1007,7 +1014,8 @@ func Test_IPv6(t *testing.T) {
 	var userObj user
 
 	body, _ := json.Marshal(postUser)
-	req, _ := http.NewRequest("POST", "http://www.example.com", bytes.NewReader(body))
+	var req map[string]interface{}
+	json.Unmarshal(body, &req)
 
 	rules := MapData{
 		"ip": []string{"ip_v6"},
@@ -1020,7 +1028,7 @@ func Test_IPv6(t *testing.T) {
 	}
 
 	vd := New(opts)
-	validationErr := vd.ValidateJSON()
+	validationErr := vd.Validate()
 	if len(validationErr) != 1 {
 		t.Log(validationErr)
 		t.Error("IP v6 validation failed!")
@@ -1036,7 +1044,8 @@ func Test_IPv6_message(t *testing.T) {
 	var userObj user
 
 	body, _ := json.Marshal(postUser)
-	req, _ := http.NewRequest("POST", "http://www.example.com", bytes.NewReader(body))
+	var req map[string]interface{}
+	json.Unmarshal(body, &req)
 
 	messages := MapData{
 		"ip": []string{"ip_v6:custom_message"},
@@ -1054,8 +1063,8 @@ func Test_IPv6_message(t *testing.T) {
 	}
 
 	vd := New(opts)
-	validationErr := vd.ValidateJSON()
-	if validationErr.Get("ip") != "custom_message" {
+	validationErr := vd.Validate()
+	if validationErr.Get("ip")[0] != "custom_message" {
 		t.Error("IP v6 custom message failed!")
 	}
 }
@@ -1069,7 +1078,8 @@ func Test_JSON(t *testing.T) {
 	var userObj user
 
 	body, _ := json.Marshal(postUser)
-	req, _ := http.NewRequest("POST", "http://www.example.com", bytes.NewReader(body))
+	var req map[string]interface{}
+	json.Unmarshal(body, &req)
 
 	rules := MapData{
 		"settings": []string{"json"},
@@ -1082,7 +1092,7 @@ func Test_JSON(t *testing.T) {
 	}
 
 	vd := New(opts)
-	validationErr := vd.ValidateJSON()
+	validationErr := vd.Validate()
 	if len(validationErr) != 1 {
 		t.Log(validationErr)
 		t.Error("JSON validation failed!")
@@ -1098,7 +1108,8 @@ func Test_JSON_valid(t *testing.T) {
 	var userObj user
 
 	body, _ := json.Marshal(postUser)
-	req, _ := http.NewRequest("POST", "http://www.example.com", bytes.NewReader(body))
+	var req map[string]interface{}
+	json.Unmarshal(body, &req)
 
 	rules := MapData{
 		"settings": []string{"json"},
@@ -1111,7 +1122,7 @@ func Test_JSON_valid(t *testing.T) {
 	}
 
 	vd := New(opts)
-	validationErr := vd.ValidateJSON()
+	validationErr := vd.Validate()
 	if len(validationErr) != 0 {
 		t.Log(validationErr)
 		t.Error("Validation failed for valid JSON")
@@ -1127,7 +1138,8 @@ func Test_JSON_message(t *testing.T) {
 	var userObj user
 
 	body, _ := json.Marshal(postUser)
-	req, _ := http.NewRequest("POST", "http://www.example.com", bytes.NewReader(body))
+	var req map[string]interface{}
+	json.Unmarshal(body, &req)
 
 	messages := MapData{
 		"settings": []string{"json:custom_message"},
@@ -1145,8 +1157,8 @@ func Test_JSON_message(t *testing.T) {
 	}
 
 	vd := New(opts)
-	validationErr := vd.ValidateJSON()
-	if validationErr.Get("settings") != "custom_message" {
+	validationErr := vd.Validate()
+	if validationErr.Get("settings")[0] != "custom_message" {
 		t.Error("JSON custom message failed!")
 	}
 }
@@ -1161,7 +1173,8 @@ func Test_LatLon(t *testing.T) {
 	var loc Location
 
 	body, _ := json.Marshal(postLocation)
-	req, _ := http.NewRequest("POST", "http://www.example.com", bytes.NewReader(body))
+	var req map[string]interface{}
+	json.Unmarshal(body, &req)
 
 	rules := MapData{
 		"lat": []string{"lat"},
@@ -1175,7 +1188,7 @@ func Test_LatLon(t *testing.T) {
 	}
 
 	vd := New(opts)
-	validationErr := vd.ValidateJSON()
+	validationErr := vd.Validate()
 	if len(validationErr) != 2 {
 		t.Log(validationErr)
 		t.Error("Lat Lon validation failed!")
@@ -1192,7 +1205,8 @@ func Test_LatLon_valid(t *testing.T) {
 	var loc Location
 
 	body, _ := json.Marshal(postLocation)
-	req, _ := http.NewRequest("POST", "http://www.example.com", bytes.NewReader(body))
+	var req map[string]interface{}
+	json.Unmarshal(body, &req)
 
 	rules := MapData{
 		"lat": []string{"lat"},
@@ -1206,7 +1220,7 @@ func Test_LatLon_valid(t *testing.T) {
 	}
 
 	vd := New(opts)
-	validationErr := vd.ValidateJSON()
+	validationErr := vd.Validate()
 	if len(validationErr) != 0 {
 		t.Log(validationErr)
 		t.Error("Valid Lat Lon validation failed!")
@@ -1223,7 +1237,8 @@ func Test_LatLon_message(t *testing.T) {
 	var loc Location
 
 	body, _ := json.Marshal(postLocation)
-	req, _ := http.NewRequest("POST", "http://www.example.com", bytes.NewReader(body))
+	var req map[string]interface{}
+	json.Unmarshal(body, &req)
 
 	messages := MapData{
 		"lat": []string{"lat:custom_message"},
@@ -1243,9 +1258,9 @@ func Test_LatLon_message(t *testing.T) {
 	}
 
 	vd := New(opts)
-	validationErr := vd.ValidateJSON()
-	if validationErr.Get("lat") != "custom_message" ||
-		validationErr.Get("lon") != "custom_message" {
+	validationErr := vd.Validate()
+	if validationErr.Get("lat")[0] != "custom_message" ||
+		validationErr.Get("lon")[0] != "custom_message" {
 		t.Error("Lat lon custom message failed")
 	}
 }
@@ -1265,7 +1280,8 @@ func Test_Len(t *testing.T) {
 	var userObj user
 
 	body, _ := json.Marshal(postUser)
-	req, _ := http.NewRequest("POST", "http://www.example.com", bytes.NewReader(body))
+	var req map[string]interface{}
+	json.Unmarshal(body, &req)
 
 	rules := MapData{
 		"name":        []string{"len:5"},
@@ -1280,7 +1296,7 @@ func Test_Len(t *testing.T) {
 	}
 
 	vd := New(opts)
-	validationErr := vd.ValidateJSON()
+	validationErr := vd.Validate()
 	if len(validationErr) != 3 {
 		t.Log(validationErr)
 		t.Error("Len validation failed!")
@@ -1302,7 +1318,8 @@ func Test_Len_message(t *testing.T) {
 	var userObj user
 
 	body, _ := json.Marshal(postUser)
-	req, _ := http.NewRequest("POST", "http://www.example.com", bytes.NewReader(body))
+	var req map[string]interface{}
+	json.Unmarshal(body, &req)
 
 	messages := MapData{
 		"name":        []string{"len:custom_message"},
@@ -1324,10 +1341,10 @@ func Test_Len_message(t *testing.T) {
 	}
 
 	vd := New(opts)
-	validationErr := vd.ValidateJSON()
-	if validationErr.Get("name") != "custom_message" ||
-		validationErr.Get("roll") != "custom_message" ||
-		validationErr.Get("permissions") != "custom_message" {
+	validationErr := vd.Validate()
+	if validationErr.Get("name")[0] != "custom_message" ||
+		validationErr.Get("roll")[0] != "custom_message" ||
+		validationErr.Get("permissions")[0] != "custom_message" {
 		t.Error("len custom message failed")
 	}
 }
@@ -1341,7 +1358,8 @@ func Test_Numeric(t *testing.T) {
 	var userObj user
 
 	body, _ := json.Marshal(postUser)
-	req, _ := http.NewRequest("POST", "http://www.example.com", bytes.NewReader(body))
+	var req map[string]interface{}
+	json.Unmarshal(body, &req)
 
 	rules := MapData{
 		"nid": []string{"numeric"},
@@ -1359,13 +1377,13 @@ func Test_Numeric(t *testing.T) {
 	}
 
 	vd := New(opts)
-	validationErr := vd.ValidateJSON()
+	validationErr := vd.Validate()
 	if len(validationErr) != 1 {
 		t.Log(validationErr)
 		t.Error("Numeric validation failed!")
 	}
 
-	if validationErr.Get("nid") != "custom_message" {
+	if validationErr.Get("nid")[0] != "custom_message" {
 		t.Error("Numeric custom message failed!")
 	}
 }
@@ -1379,7 +1397,8 @@ func Test_Numeric_valid(t *testing.T) {
 	var userObj user
 
 	body, _ := json.Marshal(postUser)
-	req, _ := http.NewRequest("POST", "http://www.example.com", bytes.NewReader(body))
+	var req map[string]interface{}
+	json.Unmarshal(body, &req)
 
 	rules := MapData{
 		"nid": []string{"numeric"},
@@ -1397,7 +1416,7 @@ func Test_Numeric_valid(t *testing.T) {
 	}
 
 	vd := New(opts)
-	validationErr := vd.ValidateJSON()
+	validationErr := vd.Validate()
 	if len(validationErr) != 0 {
 		t.Log(validationErr)
 		t.Error("Valid numeric validation failed!")
@@ -1414,7 +1433,8 @@ func Test_NumericBetween(t *testing.T) {
 	var userObj user
 
 	body, _ := json.Marshal(postUser)
-	req, _ := http.NewRequest("POST", "http://www.example.com", bytes.NewReader(body))
+	var req map[string]interface{}
+	json.Unmarshal(body, &req)
 
 	rules := MapData{
 		"age":  []string{"numeric_between:18,60"},
@@ -1434,13 +1454,13 @@ func Test_NumericBetween(t *testing.T) {
 	}
 
 	vd := New(opts)
-	validationErr := vd.ValidateJSON()
+	validationErr := vd.Validate()
 	if len(validationErr) != 2 {
 		t.Error("numeric_between validation failed!")
 	}
 
-	if validationErr.Get("age") != "custom_message" ||
-		validationErr.Get("cgpa") != "custom_message" {
+	if validationErr.Get("age")[0] != "custom_message" ||
+		validationErr.Get("cgpa")[0] != "custom_message" {
 		t.Error("numeric_between custom message failed!")
 	}
 }
@@ -1454,7 +1474,8 @@ func Test_URL(t *testing.T) {
 	var userObj user
 
 	body, _ := json.Marshal(postUser)
-	req, _ := http.NewRequest("POST", "http://www.example.com", bytes.NewReader(body))
+	var req map[string]interface{}
+	json.Unmarshal(body, &req)
 
 	rules := MapData{
 		"web": []string{"url"},
@@ -1472,13 +1493,13 @@ func Test_URL(t *testing.T) {
 	}
 
 	vd := New(opts)
-	validationErr := vd.ValidateJSON()
+	validationErr := vd.Validate()
 	if len(validationErr) != 1 {
 		t.Log(validationErr)
 		t.Error("URL validation failed!")
 	}
 
-	if validationErr.Get("web") != "custom_message" {
+	if validationErr.Get("web")[0] != "custom_message" {
 		t.Error("URL custom message failed!")
 	}
 }
@@ -1492,7 +1513,8 @@ func Test_UR_valid(t *testing.T) {
 	var userObj user
 
 	body, _ := json.Marshal(postUser)
-	req, _ := http.NewRequest("POST", "http://www.example.com", bytes.NewReader(body))
+	var req map[string]interface{}
+	json.Unmarshal(body, &req)
 
 	rules := MapData{
 		"web": []string{"url"},
@@ -1510,7 +1532,7 @@ func Test_UR_valid(t *testing.T) {
 	}
 
 	vd := New(opts)
-	validationErr := vd.ValidateJSON()
+	validationErr := vd.Validate()
 	if len(validationErr) != 0 {
 		t.Error("Valid URL validation failed!")
 	}
@@ -1533,7 +1555,8 @@ func Test_UUIDS(t *testing.T) {
 	var userObj user
 
 	body, _ := json.Marshal(postUser)
-	req, _ := http.NewRequest("POST", "http://www.example.com", bytes.NewReader(body))
+	var req map[string]interface{}
+	json.Unmarshal(body, &req)
 
 	rules := MapData{
 		"uuid":  []string{"uuid"},
@@ -1557,15 +1580,15 @@ func Test_UUIDS(t *testing.T) {
 	}
 
 	vd := New(opts)
-	validationErr := vd.ValidateJSON()
+	validationErr := vd.Validate()
 	if len(validationErr) != 4 {
 		t.Error("UUID validation failed!")
 	}
 
-	if validationErr.Get("uuid") != "custom_message" ||
-		validationErr.Get("uuid3") != "custom_message" ||
-		validationErr.Get("uuid4") != "custom_message" ||
-		validationErr.Get("uuid5") != "custom_message" {
+	if validationErr.Get("uuid")[0] != "custom_message" ||
+		validationErr.Get("uuid3")[0] != "custom_message" ||
+		validationErr.Get("uuid4")[0] != "custom_message" ||
+		validationErr.Get("uuid5")[0] != "custom_message" {
 		t.Error("UUID custom message failed!")
 	}
 
@@ -1611,7 +1634,8 @@ func Test_min(t *testing.T) {
 	var bodyObj Body
 
 	body, _ := json.Marshal(postBody)
-	req, _ := http.NewRequest("POST", "http://www.example.com", bytes.NewReader(body))
+	var req map[string]interface{}
+	json.Unmarshal(body, &req)
 
 	rules := MapData{
 		"_str":     []string{"min:5"},
@@ -1647,16 +1671,16 @@ func Test_min(t *testing.T) {
 	}
 
 	vd := New(opts)
-	validationErr := vd.ValidateJSON()
+	validationErr := vd.Validate()
 	if len(validationErr) != 15 {
 		t.Error("min validation failed!")
 	}
 
-	if validationErr.Get("_str") != "custom_message" ||
-		validationErr.Get("_slice") != "custom_message" ||
-		validationErr.Get("_int") != "custom_message" ||
-		validationErr.Get("_uint") != "custom_message" ||
-		validationErr.Get("_float32") != "custom_message" {
+	if validationErr.Get("_str")[0] != "custom_message" ||
+		validationErr.Get("_slice")[0] != "custom_message" ||
+		validationErr.Get("_int")[0] != "custom_message" ||
+		validationErr.Get("_uint")[0] != "custom_message" ||
+		validationErr.Get("_float32")[0] != "custom_message" {
 		t.Error("min custom message failed!")
 	}
 }
@@ -1701,7 +1725,8 @@ func Test_max(t *testing.T) {
 	var bodyObj Body
 
 	body, _ := json.Marshal(postBody)
-	req, _ := http.NewRequest("POST", "http://www.example.com", bytes.NewReader(body))
+	var req map[string]interface{}
+	json.Unmarshal(body, &req)
 
 	rules := MapData{
 		"_str":     []string{"max:5"},
@@ -1737,17 +1762,17 @@ func Test_max(t *testing.T) {
 	}
 
 	vd := New(opts)
-	validationErr := vd.ValidateJSON()
+	validationErr := vd.Validate()
 	if len(validationErr) != 15 {
 		t.Error(validationErr)
 		t.Error("max validation failed!")
 	}
 
-	if validationErr.Get("_str") != "custom_message" ||
-		validationErr.Get("_slice") != "custom_message" ||
-		validationErr.Get("_int") != "custom_message" ||
-		validationErr.Get("_uint") != "custom_message" ||
-		validationErr.Get("_float32") != "custom_message" {
+	if validationErr.Get("_str")[0] != "custom_message" ||
+		validationErr.Get("_slice")[0] != "custom_message" ||
+		validationErr.Get("_int")[0] != "custom_message" ||
+		validationErr.Get("_uint")[0] != "custom_message" ||
+		validationErr.Get("_float32")[0] != "custom_message" {
 		t.Error("max custom message failed!")
 	}
 }
@@ -1761,7 +1786,8 @@ func Test_In(t *testing.T) {
 	var userObj user
 
 	body, _ := json.Marshal(postUser)
-	req, _ := http.NewRequest("POST", "http://www.example.com", bytes.NewReader(body))
+	var req map[string]interface{}
+	json.Unmarshal(body, &req)
 
 	messages := MapData{
 		"input": []string{"in:custom_message"},
@@ -1779,12 +1805,12 @@ func Test_In(t *testing.T) {
 	}
 
 	vd := New(opts)
-	validationErr := vd.ValidateJSON()
+	validationErr := vd.Validate()
 	if len(validationErr) != 1 {
 		t.Error("in validation failed!")
 	}
 
-	if validationErr.Get("input") != "custom_message" {
+	if validationErr.Get("input")[0] != "custom_message" {
 		t.Error("in custom message failed!")
 	}
 }
@@ -1798,7 +1824,8 @@ func Test_In_valid(t *testing.T) {
 	var userObj user
 
 	body, _ := json.Marshal(postUser)
-	req, _ := http.NewRequest("POST", "http://www.example.com", bytes.NewReader(body))
+	var req map[string]interface{}
+	json.Unmarshal(body, &req)
 
 	messages := MapData{
 		"input": []string{"in:custom_message"},
@@ -1816,7 +1843,7 @@ func Test_In_valid(t *testing.T) {
 	}
 
 	vd := New(opts)
-	validationErr := vd.ValidateJSON()
+	validationErr := vd.Validate()
 	if len(validationErr) != 0 {
 		t.Error("in validation was triggered when valid!")
 	}
@@ -1831,7 +1858,8 @@ func Test_In_string(t *testing.T) {
 	var userObj user
 
 	body, _ := json.Marshal(postUser)
-	req, _ := http.NewRequest("POST", "http://www.example.com", bytes.NewReader(body))
+	var req map[string]interface{}
+	json.Unmarshal(body, &req)
 
 	messages := MapData{
 		"input": []string{"in:custom_message"},
@@ -1849,12 +1877,12 @@ func Test_In_string(t *testing.T) {
 	}
 
 	vd := New(opts)
-	validationErr := vd.ValidateJSON()
+	validationErr := vd.Validate()
 	if len(validationErr) != 1 {
 		t.Error("in validation failed!")
 	}
 
-	if validationErr.Get("input") != "custom_message" {
+	if validationErr.Get("input")[0] != "custom_message" {
 		t.Error("in custom message failed!")
 	}
 }
@@ -1868,7 +1896,8 @@ func Test_In_string_valid(t *testing.T) {
 	var userObj user
 
 	body, _ := json.Marshal(postUser)
-	req, _ := http.NewRequest("POST", "http://www.example.com", bytes.NewReader(body))
+	var req map[string]interface{}
+	json.Unmarshal(body, &req)
 
 	messages := MapData{
 		"input": []string{"in:custom_message"},
@@ -1886,7 +1915,7 @@ func Test_In_string_valid(t *testing.T) {
 	}
 
 	vd := New(opts)
-	validationErr := vd.ValidateJSON()
+	validationErr := vd.Validate()
 	if len(validationErr) != 0 {
 		t.Error("in validation was triggered when valid!")
 	}
@@ -1901,7 +1930,8 @@ func Test_NotIn(t *testing.T) {
 	var userObj user
 
 	body, _ := json.Marshal(postUser)
-	req, _ := http.NewRequest("POST", "http://www.example.com", bytes.NewReader(body))
+	var req map[string]interface{}
+	json.Unmarshal(body, &req)
 
 	messages := MapData{
 		"input": []string{"not_in:custom_message"},
@@ -1919,12 +1949,12 @@ func Test_NotIn(t *testing.T) {
 	}
 
 	vd := New(opts)
-	validationErr := vd.ValidateJSON()
+	validationErr := vd.Validate()
 	if len(validationErr) != 1 {
 		t.Error("not_in validation failed!")
 	}
 
-	if validationErr.Get("input") != "custom_message" {
+	if validationErr.Get("input")[0] != "custom_message" {
 		t.Error("not_in custom message failed!")
 	}
 }
@@ -1938,7 +1968,8 @@ func Test_NotIn_valid(t *testing.T) {
 	var userObj user
 
 	body, _ := json.Marshal(postUser)
-	req, _ := http.NewRequest("POST", "http://www.example.com", bytes.NewReader(body))
+	var req map[string]interface{}
+	json.Unmarshal(body, &req)
 
 	messages := MapData{
 		"input": []string{"not_in:custom_message"},
@@ -1956,7 +1987,7 @@ func Test_NotIn_valid(t *testing.T) {
 	}
 
 	vd := New(opts)
-	validationErr := vd.ValidateJSON()
+	validationErr := vd.Validate()
 	if len(validationErr) != 0 {
 		t.Error("not_in validation was triggered when valid!")
 	}
@@ -1971,7 +2002,8 @@ func Test_NotIn_string(t *testing.T) {
 	var userObj user
 
 	body, _ := json.Marshal(postUser)
-	req, _ := http.NewRequest("POST", "http://www.example.com", bytes.NewReader(body))
+	var req map[string]interface{}
+	json.Unmarshal(body, &req)
 
 	messages := MapData{
 		"input": []string{"not_in:custom_message"},
@@ -1989,12 +2021,12 @@ func Test_NotIn_string(t *testing.T) {
 	}
 
 	vd := New(opts)
-	validationErr := vd.ValidateJSON()
+	validationErr := vd.Validate()
 	if len(validationErr) != 1 {
 		t.Error("not_in validation failed!")
 	}
 
-	if validationErr.Get("input") != "custom_message" {
+	if validationErr.Get("input")[0] != "custom_message" {
 		t.Error("not_in custom message failed!")
 	}
 }
@@ -2008,7 +2040,8 @@ func Test_NotIn_string_valid(t *testing.T) {
 	var userObj user
 
 	body, _ := json.Marshal(postUser)
-	req, _ := http.NewRequest("POST", "http://www.example.com", bytes.NewReader(body))
+	var req map[string]interface{}
+	json.Unmarshal(body, &req)
 
 	messages := MapData{
 		"input": []string{"not_in:custom_message"},
@@ -2026,7 +2059,7 @@ func Test_NotIn_string_valid(t *testing.T) {
 	}
 
 	vd := New(opts)
-	validationErr := vd.ValidateJSON()
+	validationErr := vd.Validate()
 	if len(validationErr) != 0 {
 		t.Error("not_in validation was triggered when valid!")
 	}
