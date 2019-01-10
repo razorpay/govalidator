@@ -18,20 +18,6 @@ func Test_AddCustomRule(t *testing.T) {
 	}
 }
 
-func Test_AddCustomRule_panic(t *testing.T) {
-	defer func() {
-		if r := recover(); r == nil {
-			t.Errorf("AddCustomRule failed to panic")
-		}
-	}()
-	AddCustomRule("__x__", func(f string, rule string, message string, v interface{}) error {
-		if v.(string) != "xyz" {
-			return fmt.Errorf("The %s field must be xyz", f)
-		}
-		return nil
-	})
-}
-
 func Test_validateExtraRules(t *testing.T) {
 	errsBag := MapData{}
 	validateCustomRules("f_field", "__x__", "a", "", errsBag)
