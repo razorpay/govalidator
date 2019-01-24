@@ -1,11 +1,11 @@
-Package govalidator
-=========================
-[![Build Status](https://travis-ci.org/krantideep95/govalidator.svg?branch=master)](https://travis-ci.org/krantideep95/govalidator)
-[![Project status](https://img.shields.io/badge/version-1.9-green.svg)](https://github.com/krantideep95/govalidator/releases)
-[![Go Report Card](https://goreportcard.com/badge/github.com/krantideep95/govalidator)](https://goreportcard.com/report/github.com/krantideep95/govalidator)
-[![Coverage Status](https://coveralls.io/repos/github/krantideep95/govalidator/badge.svg?branch=master)](https://coveralls.io/github/krantideep95/govalidator?branch=master)
-[![GoDoc](https://godoc.org/github.com/krantideep95/govalidator?status.svg)](https://godoc.org/github.com/krantideep95/govalidator)
-[![License](https://img.shields.io/dub/l/vibe-d.svg)](https://github.com/krantideep95/govalidator/blob/dev/LICENSE.md)
+![govalidator](govalidator.png)
+
+[![Build Status](https://travis-ci.org/thedevsaddam/govalidator.svg?branch=master)](https://travis-ci.org/thedevsaddam/govalidator)
+[![Project status](https://img.shields.io/badge/version-1.9-green.svg)](https://github.com/thedevsaddam/govalidator/releases)
+[![Go Report Card](https://goreportcard.com/badge/github.com/thedevsaddam/govalidator)](https://goreportcard.com/report/github.com/thedevsaddam/govalidator)
+[![Coverage Status](https://coveralls.io/repos/github/thedevsaddam/govalidator/badge.svg?branch=master)](https://coveralls.io/github/thedevsaddam/govalidator?branch=master)
+[![GoDoc](https://godoc.org/github.com/thedevsaddam/govalidator?status.svg)](https://godoc.org/github.com/thedevsaddam/govalidator)
+[![License](https://img.shields.io/dub/l/vibe-d.svg)](https://github.com/thedevsaddam/govalidator/blob/dev/LICENSE.md)
 
 Validate golang request data with simple rules. Highly inspired by Laravel's request validation.
 
@@ -14,7 +14,7 @@ Validate golang request data with simple rules. Highly inspired by Laravel's req
 
 Install the package using
 ```go
-$ go get github.com/krantideep95/govalidator
+$ go get github.com/thedevsaddam/govalidator
 // or
 $ go get gopkg.in/thedevsaddam/govalidator.v1
 ```
@@ -23,7 +23,7 @@ $ go get gopkg.in/thedevsaddam/govalidator.v1
 
 To use the package import it in your `*.go` code
 ```go
-import "github.com/krantideep95/govalidator"
+import "github.com/thedevsaddam/govalidator"
 // or
 import "gopkg.in/thedevsaddam/govalidator.v1"
 ```
@@ -132,7 +132,7 @@ Send request to the server using curl or postman: `curl GET "http://localhost:90
 * `between:numeric,numeric` The field under validation check the length of characters/ length of array, slice, map/ range between two integer or float number etc.
 * `numeric` The field under validation must be entirely numeric characters.
 * `numeric_between:numeric,numeric` The field under validation must be a numeric value between the range.
-   e.g: `numeric_between:18,65` may contains numeric value like `35`, `55` . You can also pass float value to check
+   e.g: `numeric_between:18,65` may contains numeric value like `35`, `55` . You can also pass float value to check. Moreover, both bounds can be omitted to create an unbounded minimum (e.g: `numeric_between:,65`) or an unbounded maximum (e.g: `numeric_between:-1,`).
 * `bool` The field under validation must be able to be cast as a boolean. Accepted input are `true, false, 1, 0, "1" and "0"`.
 * `credit_card` The field under validation must have a valid credit card number. Accepted cards are `Visa, MasterCard, American Express, Diners Club, Discover and JCB card`
 * `coordinate` The field under validation must have a value of valid coordinate.
