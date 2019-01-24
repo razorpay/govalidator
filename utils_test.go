@@ -2,7 +2,6 @@ package govalidator
 
 import (
 	"reflect"
-	"strings"
 	"testing"
 )
 
@@ -72,29 +71,5 @@ func Test_isEmpty(t *testing.T) {
 		if !isEmpty(v) {
 			t.Errorf("%v failed", k)
 		}
-	}
-}
-
-func Test_getFileInfo(t *testing.T) {
-	req, err := buildMocFormReq()
-	if err != nil {
-		t.Error("request failed", err)
-	}
-	fExist, fn, ext, mime, size, _ := getFileInfo(req, "file")
-	if !fExist {
-		t.Error("file does not exist")
-	}
-	if fn != "BENCHMARK.md" {
-		t.Error("failed to get file name")
-	}
-	if ext != "md" {
-		t.Error("failed to get file extension")
-	}
-	if !strings.Contains(mime, "text/plain") {
-		t.Log(mime)
-		t.Error("failed to get file mime")
-	}
-	if size <= 0 {
-		t.Error("failed to get file size")
 	}
 }

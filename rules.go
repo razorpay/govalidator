@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"math"
 	"mime/multipart"
-	"net/url"
 	"reflect"
 	"strconv"
 	"strings"
@@ -26,16 +25,24 @@ func AddCustomRule(name string, fn func(field string, rule string, message strin
 }
 
 // validateCustomRules validate custom rules
-func validateCustomRules(field string, rule string, message string, value interface{}, errsBag url.Values) {
+func validateCustomRules(field string, rule string, message string, value interface{}, errsBag MapData) {
 	for k, v := range rulesFuncMap {
 		if k == rule || strings.HasPrefix(rule, k+":") {
 			err := v(field, rule, message, value)
 			if err != nil {
-				errsBag.Add(field, err.Error())
+				errsBag.add(field, err.Error())
 			}
 			break
 		}
 	}
+}
+
+func (v MapData) add(key, value string) {
+	v[key] = append(v[key], value)
+}
+
+func (v MapData) Get(key string) []string {
+	return v[key]
 }
 
 func init() {
@@ -1057,6 +1064,36 @@ func init() {
 			err = errors.New(message)
 		}
 		if isIn(rng, str) {
+			return err
+		}
+		return nil
+	})
+
+	// Validate string with Luhn (mod-10)
+	AddCustomRule("luhn", func(field string, rule string, message string, value interface{}) error {
+		pan := fmt.Sprintf("%v", value)
+		var alter bool
+		var checksum int
+
+		for position := len(pan) - 1; position > -1; position-- {
+			digit := int(pan[position] - 48)
+			if alter {
+				digit = digit * 2
+				if digit > 9 {
+					digit = (digit % 10) + 1
+				}
+			}
+			alter = !alter
+			checksum += digit
+		}
+		result := checksum%10 == 0
+
+		err := fmt.Errorf("The %s field is not a valid card number", field)
+		if message != "" {
+			err = errors.New(message)
+		}
+
+		if result != true {
 			return err
 		}
 		return nil
