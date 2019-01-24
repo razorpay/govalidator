@@ -2050,3 +2050,43 @@ func Test_NotIn_string_valid(t *testing.T) {
 		t.Error("not_in validation was triggered when valid!")
 	}
 }
+
+func Test_Luhn(t *testing.T) {
+	type card struct {
+		Number string `json:"number"`
+	}
+
+	postCard := card{Number: "4000000000000001"}
+	var cardObj card
+
+	body, _ := json.Marshal(postCard)
+	var req map[string]interface{}
+	json.Unmarshal(body, &req)
+
+	rules := MapData{
+		"number": []string{"luhn"},
+	}
+
+	messages := MapData{
+		"number": []string{"luhn:custom_message"},
+	}
+
+	opts := Options{
+		Request:  req,
+		Data:     &cardObj,
+		Rules:    rules,
+		Messages: messages,
+	}
+
+	vd := New(opts)
+	validationErr := vd.Validate()
+
+	if len(validationErr) != 1 {
+		t.Log(validationErr)
+		t.Error("luhn validation failed!")
+	}
+
+	if validationErr.Get("number")[0] != "custom_message" {
+		t.Error("luhn custom message failed!")
+	}
+}

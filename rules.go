@@ -1030,7 +1030,6 @@ func init() {
 
 	// Validate string with Luhn (mod-10)
 	AddCustomRule("luhn", func(field string, rule string, message string, value interface{}) error {
-
 		pan := fmt.Sprintf("%v", value)
 		var alter bool
 		var checksum int
@@ -1048,8 +1047,13 @@ func init() {
 		}
 		result := checksum%10 == 0
 
+		err := fmt.Errorf("The %s field is not a valid card number", field)
+		if message != "" {
+			err = errors.New(message)
+		}
+
 		if result != true {
-			return fmt.Errorf("%s is not a valid card number", field)
+			return err
 		}
 		return nil
 	})
