@@ -17,9 +17,9 @@ var rulesFuncMap = make(map[string]func(string, string, string, interface{}) err
 // fn func(name string, fn func(field string, rule string, message string, value interface{}) error
 // see example in readme: https://github.com/thedevsaddam/govalidator#add-custom-rules
 func AddCustomRule(name string, fn func(field string, rule string, message string, value interface{}) error) {
-	//if isRuleExist(name) {
-	//	//panic(fmt.Errorf("govalidator: %s is already defined in rules", name))
-	//}
+	if isRuleExist(name) {
+		panic(fmt.Errorf("govalidator: %s is already defined in rules", name))
+	}
 	rulesFuncMap[name] = fn
 }
 
@@ -1024,6 +1024,32 @@ func init() {
 		}
 		if isIn(rng, str) {
 			return err
+		}
+		return nil
+	})
+
+	// Validate string with Luhn (mod-10)
+	AddCustomRule("luhn", func(field string, rule string, message string, value interface{}) error {
+
+		pan := fmt.Sprintf("%v", value)
+		var alter bool
+		var checksum int
+
+		for position := len(pan) - 1; position > -1; position-- {
+			digit := int(pan[position] - 48)
+			if alter {
+				digit = digit * 2
+				if digit > 9 {
+					digit = (digit % 10) + 1
+				}
+			}
+			alter = !alter
+			checksum += digit
+		}
+		result := checksum%10 == 0
+
+		if result != true {
+			return fmt.Errorf("%s is not a valid card number", field)
 		}
 		return nil
 	})
