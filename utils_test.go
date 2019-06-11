@@ -1,6 +1,7 @@
 package govalidator
 
 import (
+	"github.com/stretchr/testify/assert"
 	"reflect"
 	"testing"
 )
@@ -50,6 +51,16 @@ func Test_toString(t *testing.T) {
 	if typ != reflect.String {
 		t.Error("toString failed!")
 	}
+}
+
+func Test_toString_Float64_Conversion(t *testing.T) {
+	Float64 := float64(100000000)
+	str := toString(Float64)
+	typ := reflect.ValueOf(str).Kind()
+	if typ != reflect.String {
+		t.Error("toString failed!")
+	}
+	assert.Equal(t,"100000000",str)
 }
 
 func Test_isEmpty(t *testing.T) {
