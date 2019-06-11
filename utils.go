@@ -1,7 +1,7 @@
 package govalidator
 
 import (
-	"fmt"
+	"github.com/spf13/cast"
 	"reflect"
 	"strings"
 )
@@ -37,7 +37,7 @@ func isRuleExist(rule string) bool {
 func toString(v interface{}) string {
 	str, ok := v.(string)
 	if !ok {
-		str = fmt.Sprintf("%#v", v)
+		str = cast.ToString(v)
 	}
 	return str
 }
