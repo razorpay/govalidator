@@ -1,9 +1,10 @@
 package govalidator
 
 import (
-	"github.com/stretchr/testify/assert"
 	"reflect"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func Test_isContainRequiredField(t *testing.T) {
@@ -60,7 +61,7 @@ func Test_toString_Float64_Conversion(t *testing.T) {
 	if typ != reflect.String {
 		t.Error("toString failed!")
 	}
-	assert.Equal(t,"100000000",str)
+	assert.Equal(t, "100000000", str)
 }
 
 func Test_isEmpty(t *testing.T) {
