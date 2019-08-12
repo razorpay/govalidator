@@ -1,9 +1,10 @@
 package govalidator
 
 import (
-	"github.com/spf13/cast"
 	"reflect"
 	"strings"
+
+	"github.com/spf13/cast"
 )
 
 // containsRequiredField check rules contain any required field

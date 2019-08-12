@@ -1,6 +1,7 @@
 package govalidator
 
 import (
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"math"
@@ -1096,6 +1097,22 @@ func init() {
 		if result != true {
 			return err
 		}
+		return nil
+	})
+
+	AddCustomRule("base64encoded", func(field string, rule string, message string, value interface{}) error {
+		str := fmt.Sprintf("%v", value)
+
+		_, err := base64.StdEncoding.DecodeString(str)
+
+		if err != nil {
+			if message != "" {
+				return errors.New(message)
+			}
+
+			return fmt.Errorf("The %s field is not a valid base64 encoded string. error: %v", field, err.Error())
+		}
+
 		return nil
 	})
 }

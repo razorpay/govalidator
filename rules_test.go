@@ -1456,7 +1456,7 @@ func Test_NumericBetween(t *testing.T) {
 
 	validationErr := vd.Validate()
 
-	if len(validationErr) != 2 {
+	if len(validationErr) != 5 {
 		t.Error("numeric_between validation failed!")
 	}
 
@@ -1474,25 +1474,6 @@ func Test_NumericBetween(t *testing.T) {
 		t.Error("height unbounded min message failed!")
 	}
 }
-
-//func Test_NumericBetween_invalid(t *testing.T) {
-//	req := `{field:null}"`
-//	var req2 map[string]interface{}
-//	json.Unmarshal([]byte(req), &req2)
-//
-//	validate := func(argument string) {
-//		New(Options{
-//			Request: nil,
-//			Rules: MapData{
-//				"field": []string{argument},
-//			},
-//		}).Validate()
-//	}
-//
-//	assertPanicWith(t, errInvalidArgument, func() { validate("numeric_between:1") })
-//	assertPanicWith(t, errInvalidArgument, func() { validate("numeric_between:1,2,3") })
-//	assertPanicWith(t, errInvalidArgument, func() { validate("numeric_between:,") })
-//}
 
 func assertPanicWith(t *testing.T, expectedError error, executer func()) {
 	defer func() {
@@ -2188,5 +2169,46 @@ func Test_Luhn(t *testing.T) {
 
 	if validationErr.Get("number")[0] != "custom_message" {
 		t.Error("luhn custom message failed!")
+	}
+}
+
+func Test_Base64Decode(t *testing.T) {
+	type data struct {
+		Str string `json:"str"`
+	}
+
+	postCard := data{Str: "a"}
+	var cardObj data
+
+	body, _ := json.Marshal(postCard)
+	var req map[string]interface{}
+	json.Unmarshal(body, &req)
+
+	rules := MapData{
+		"str": []string{"base64encoded"},
+	}
+
+	messages := MapData{
+		"str": []string{"base64encoded:custom_message"},
+	}
+
+	opts := Options{
+		Request:  req,
+		Data:     &cardObj,
+		Rules:    rules,
+		Messages: messages,
+	}
+
+	vd := New(opts)
+	validationErr := vd.Validate()
+
+	if len(validationErr) != 1 {
+		t.Log(validationErr)
+		t.Error("base64 encoded string validation failed!")
+	}
+
+	if validationErr.Get("str")[0] != "custom_message" {
+		t.Log(validationErr.Get("str"))
+		t.Error("base64 encoded custom message failed!")
 	}
 }
