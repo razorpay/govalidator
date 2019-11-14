@@ -102,6 +102,43 @@ func Test_Required(t *testing.T) {
 	}
 }
 
+func Test_Sometimes(t *testing.T) {
+	type tSometimes struct {
+		Str string `json:"_str"`
+	}
+
+	rules := MapData{
+		"_str": []string{"sometimes"},
+	}
+
+	postRequired := map[string]string{}
+
+	var tsometimes tSometimes
+
+	body, _ := json.Marshal(postRequired)
+
+	var req map[string]interface{}
+	json.Unmarshal(body, &req)
+
+	messages := MapData{
+		"_str": []string{"sometimes:custom_message"},
+	}
+
+	opts := Options{
+		Request:  req,
+		Data:     &tsometimes,
+		Rules:    rules,
+		Messages: messages,
+	}
+
+	vd := New(opts)
+	validationErr := vd.Validate()
+	if len(validationErr) != 0 {
+		t.Log(len(validationErr))
+		t.Error("required validation failed!")
+	}
+}
+
 func Test_Regex(t *testing.T) {
 	type tRegex struct {
 		Name string `json:"name"`

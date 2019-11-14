@@ -162,6 +162,118 @@ func init() {
 		return nil
 	})
 
+	AddCustomRule("sometimes", func(field, rule, message string, value interface{}) error {
+		err := fmt.Errorf("The %s field is required", field)
+		if message != "" {
+			err = errors.New(message)
+		}
+		if value == nil {
+			return nil
+		}
+		if _, ok := value.(multipart.File); ok {
+			return nil
+		}
+		rv := reflect.ValueOf(value)
+		switch rv.Kind() {
+		case reflect.String, reflect.Array, reflect.Slice, reflect.Map:
+			if rv.Len() == 0 {
+				return err
+			}
+		case reflect.Int:
+			if isEmpty(value.(int)) {
+				return err
+			}
+		case reflect.Int8:
+			if isEmpty(value.(int8)) {
+				return err
+			}
+		case reflect.Int16:
+			if isEmpty(value.(int16)) {
+				return err
+			}
+		case reflect.Int32:
+			if isEmpty(value.(int32)) {
+				return err
+			}
+		case reflect.Int64:
+			if isEmpty(value.(int64)) {
+				return err
+			}
+		case reflect.Float32:
+			if isEmpty(value.(float32)) {
+				return err
+			}
+		case reflect.Float64:
+			if isEmpty(value.(float64)) {
+				return err
+			}
+		case reflect.Uint:
+			if isEmpty(value.(uint)) {
+				return err
+			}
+		case reflect.Uint8:
+			if isEmpty(value.(uint8)) {
+				return err
+			}
+		case reflect.Uint16:
+			if isEmpty(value.(uint16)) {
+				return err
+			}
+		case reflect.Uint32:
+			if isEmpty(value.(uint32)) {
+				return err
+			}
+		case reflect.Uint64:
+			if isEmpty(value.(uint64)) {
+				return err
+			}
+		case reflect.Uintptr:
+			if isEmpty(value.(uintptr)) {
+				return err
+			}
+		case reflect.Struct:
+			switch rv.Type().String() {
+			case "govalidator.Int":
+				if v, ok := value.(Int); ok {
+					if !v.IsSet {
+						return err
+					}
+				}
+			case "govalidator.Int64":
+				if v, ok := value.(Int64); ok {
+					if !v.IsSet {
+						return err
+					}
+				}
+			case "govalidator.Float32":
+				if v, ok := value.(Float32); ok {
+					if !v.IsSet {
+						return err
+					}
+				}
+			case "govalidator.Float64":
+				if v, ok := value.(Float64); ok {
+					if !v.IsSet {
+						return err
+					}
+				}
+			case "govalidator.Bool":
+				if v, ok := value.(Bool); ok {
+					if !v.IsSet {
+						return err
+					}
+				}
+			default:
+				panic("govalidator: invalid custom type for required rule")
+
+			}
+
+		default:
+			panic("govalidator: invalid type for required rule")
+
+		}
+		return nil
+	})
 	// Regex check the custom Regex rules
 	// Regex:^[a-zA-Z]+$ means this field can only contain alphabet (a-z and A-Z)
 	AddCustomRule("regex", func(field, rule, message string, value interface{}) error {
